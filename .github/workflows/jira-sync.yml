@@ -18,6 +18,9 @@ jobs:
         run: |
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
+          # Escape double quotes and backslashes in the issue body for JSON
+          SAFE_BODY=$(echo "$ISSUE_BODY" | sed 's/\\/\\\\/g; s/"/\\"/g')
+          DESCRIPTION_JSON="{\"type\":\"doc\",\"version\":1,\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"$SAFE_BODY\"}]}]}"
           curl -X POST \
             -H "Content-Type: application/json" \
             -u "$JIRA_USER_EMAIL:$JIRA_API_TOKEN" \
@@ -25,10 +28,9 @@ jobs:
               \"fields\": {
                 \"project\": { \"key\": \"$JIRA_PROJECT_KEY\" },
                 \"summary\": \"$ISSUE_TITLE\",
-                \"description\": \"$ISSUE_BODY\",
+                \"description\": $DESCRIPTION_JSON,
                 \"issuetype\": { \"name\": \"Task\" },
                 \"customfield_10014\": \"$JIRA_EPIC_KEY\"
               }
             }" \
             "$JIRA_BASE_URL/rest/api/3/issue"
-
