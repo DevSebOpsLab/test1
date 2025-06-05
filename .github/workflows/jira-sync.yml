@@ -32,7 +32,6 @@ jobs:
         run: |
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
-          # Escape double quotes and backslashes in the issue body for JSON
           SAFE_BODY=$(echo "$ISSUE_BODY" | sed 's/\\/\\\\/g; s/"/\\"/g')
           DESCRIPTION_JSON="{\"type\":\"doc\",\"version\":1,\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"$SAFE_BODY\"}]}]}"
           curl -X POST \
@@ -44,7 +43,7 @@ jobs:
                 \"summary\": \"$ISSUE_TITLE\",
                 \"description\": $DESCRIPTION_JSON,
                 \"issuetype\": { \"name\": \"Task\" },
-                \"customfield_10014\": \"$JIRA_EPIC_KEY\"
+                \"customfield_10014\": \"$JIRA_EPIC_KEY\",
                 \"customfield_10020\": $SPRINT_ID
               }
             }" \
